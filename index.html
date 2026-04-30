@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Diet Meal Planner & Order Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="toast-container"></div>
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <p>Generating Smart Meal Plan...</p>
+    </div>
+
+    <div class="app-container">
+        <!-- Top Section -->
+        <header class="top-section">
+            <div class="header-content">
+                <h1>Smart Diet <span>Meal Planner</span></h1>
+                <p>Optimize your nutrition within your daily calorie limit using AI & Dynamic Programming.</p>
+            </div>
+            <div class="header-illustration">
+                🥑🥗🍳
+            </div>
+        </header>
+
+        <!-- Main Input Section -->
+        <section id="input-section" class="active-section">
+            <div class="grid-layout">
+                <!-- Add Meal Form -->
+                <div class="glass-card form-card">
+                    <h2>Add New Meal</h2>
+                    <form id="add-meal-form">
+                        <div class="input-group">
+                            <label for="meal-name">Meal Name</label>
+                            <input type="text" id="meal-name" placeholder="e.g. Avocado Toast" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="meal-category">Category</label>
+                            <select id="meal-category" required>
+                                <option value="Breakfast">Breakfast</option>
+                                <option value="Lunch">Lunch</option>
+                                <option value="Snack">Snack</option>
+                                <option value="Dinner">Dinner</option>
+                                <option value="Drink">Drink</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="meal-calories">Manual Calories (Optional)</label>
+                            <input type="number" id="meal-calories" placeholder="e.g. 250">
+                        </div>
+                        <button type="submit" class="btn-primary">+ Add Meal</button>
+                    </form>
+                </div>
+
+                <!-- Meal Table -->
+                <div class="glass-card table-card">
+                    <div class="table-header">
+                        <h2>Available Meals</h2>
+                        <div class="calorie-control">
+                            <div class="recommend-box">
+                                <label for="user-weight">Calculate by Body Weight</label>
+                                <div class="weight-input-group">
+                                    <input type="number" id="user-weight" placeholder="Weight (kg)" min="30" max="250">
+                                    <button id="recommend-btn" class="btn-secondary btn-small">Suggest Limit</button>
+                                </div>
+                                <div id="weight-results" class="weight-results-box hidden">
+                                    <p class="main-recommendation">Recommended intake: <span id="cal-range">X – Y</span> kcal/day</p>
+                                    <div class="calorie-modes">
+                                        <div class="mode-card" id="mode-loss">
+                                            <span class="mode-label">Weight Loss</span>
+                                            <span class="mode-value">📉 <span id="loss-val">0</span></span>
+                                        </div>
+                                        <div class="mode-card active" id="mode-maintain">
+                                            <span class="mode-label">Maintenance</span>
+                                            <span class="mode-value">⚖️ <span id="maintain-val">0</span></span>
+                                        </div>
+                                        <div class="mode-card" id="mode-gain">
+                                            <span class="mode-label">Weight Gain</span>
+                                            <span class="mode-value">📈 <span id="gain-val">0</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="control-divider">
+                            <label for="calorie-limit">Daily Calorie Limit</label>
+                            <div class="slider-group">
+                                <input type="range" id="calorie-slider" min="500" max="4000" step="50" value="1500">
+                                <input type="number" id="calorie-input" min="1" max="10000" value="1500">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="meal-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Calories</th>
+                                    <th>Nutrition</th>
+                                    <th>Nutr/Cal</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="meal-table-body">
+                                <!-- Meals injected here -->
+                            </tbody>
+                        </table>
+                        <div id="empty-state" class="empty-state">
+                        <div class="empty-icon">🍱</div>
+                        <h3>Your meal list is empty</h3>
+                        <p>Add your favorite dishes using the form on the left to start planning your perfect diet.</p>
+                    </div>
+                    <button id="optimize-btn" class="btn-glow">Generate Smart Meal Plan &rarr;</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Result Section -->
+        <section id="result-section" class="hidden">
+            <header class="result-header">
+                <button id="back-btn" class="btn-secondary">&larr; Modify Meals</button>
+                <h2>Your Optimal <span>Diet Plan</span></h2>
+            </header>
+
+            <!-- Summary Dashboard -->
+            <div class="dashboard-grid">
+                <div class="dash-card">
+                    <div class="dash-icon">🔥</div>
+                    <div class="dash-info">
+                        <h3>Calories Used</h3>
+                        <p><span class="counter" id="res-calories">0</span> / <span id="res-cal-limit">0</span> kcal</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="cal-progress"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dash-card highlight-card">
+                    <div class="dash-icon">⭐</div>
+                    <div class="dash-info">
+                        <h3>Total Nutrition Score</h3>
+                        <p class="counter highlight-text" id="res-nutrition">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wow Feature: Meal Plan Timeline -->
+            <div class="glass-card timeline-card">
+                <h3>🍽️ Suggested Meal Schedule</h3>
+                <div class="timeline-container" id="timeline-container">
+                    <!-- Timeline items injected here -->
+                </div>
+            </div>
+
+            <!-- Selected Meals -->
+            <div class="selected-meals-section">
+                <h3>✅ Selected Meals & Order Links</h3>
+                <div class="meal-cards-grid" id="selected-meals-grid">
+                    <!-- Cards injected here -->
+                </div>
+            </div>
+
+            <!-- Algorithms Comparison & Skipped -->
+            <div class="algo-grid solo-grid">
+                <!-- Skipped Meals -->
+                <div class="glass-card skipped-card">
+                    <h3>❌ Skipped Meals</h3>
+                    <p class="sub-text">Not selected due to lower optimization potential.</p>
+                    <div class="skipped-list" id="skipped-list">
+                        <!-- Skipped items injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- DP Table Visualization -->
+            <div class="glass-card dp-table-card">
+                <h3>🔍 0/1 Knapsack DP Table Visualization</h3>
+                <p class="sub-text">Optimal traceback highlighted in green.</p>
+                <div class="dp-table-container">
+                    <table id="dp-table">
+                        <!-- DP Table injected here -->
+                    </table>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    <script src="dp.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
